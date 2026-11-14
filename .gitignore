@@ -164,3 +164,10 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+install_manifest.txt
+build.ninja
+.ninja_deps
+.ninja_log
+CMakeUserPresets.json
+cmake-build-*/
