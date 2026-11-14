@@ -1,0 +1,101 @@
+#include "project.hpp"
+
+#include <iostream>
+
+namespace motion
+{
+    Project::Project(std::string_view name, int width, int height, int fps, int durationSec)
+        : m_name{ name }
+        , m_width{ width }
+        , m_height{ height }
+        , m_fps{ fps }
+        , m_durationSec{ durationSec }
+    {
+        if (m_width <= 0 || m_height <= 0 || m_fps <= 0 || m_durationSec <= 0)
+        {
+            std::cout << "  [Project] ОШИБКА: недопустимые параметры, используются значения по умолчанию\n";
+            m_width = DEFAULT_WIDTH;
+            m_height = DEFAULT_HEIGHT;
+            m_fps = DEFAULT_FPS;
+            m_durationSec = DEFAULT_DURATION;
+        }
+
+        std::cout << "  [Project] создано: " << m_name << "\n";
+    }
+
+    Project::~Project()
+    {
+        std::cout << "  [Project] УНИЧТОЖЕНО: " << m_name << "\n";
+    }
+
+    Image* Project::FindImage(std::string_view name)
+    {
+        for (Image& image : m_images)
+        {
+            if (image.GetName() == name)
+            {
+                return &image;
+            }
+        }
+        return nullptr;
+    }
+
+    void Project::AddImage(std::string_view name, SourceFile* source, double x, double y)
+    {
+        m_images.emplace_back(name, source, x, y);
+    }
+
+    bool Project::MoveImage(std::string_view name, double dx, double dy)
+    {
+        Image* image = FindImage(name);
+        if (image == nullptr)
+        {
+            std::cout << "  [Project] изображение не найдено: " << name << "\n";
+            return false;
+        }
+
+        image->MoveBy(dx, dy);
+        return true;
+    }
+
+    bool Project::SetImageOpacity(std::string_view name, double opacity)
+    {
+        Image* image = FindImage(name);
+        if (image == nullptr)
+        {
+            std::cout << "  [Project] изображение не найдено: " << name << "\n";
+            return false;
+        }
+
+        return image->SetOpacity(opacity);
+    }
+
+    bool Project::Export() const
+    {
+        for (const Image& image : m_images)
+        {
+            if (!image.IsReady())
+            {
+                std::cout << "  [Project] ЭКСПОРТ ОТКЛОНЕН: исходный файл изображения '" << image.GetName()
+                    << "' недоступен\n";
+                return false;
+            }
+        }
+
+        std::cout << "  [Project] экспортировано кадров: " << GetFrameCount() << " (" << m_width << "x" << m_height << ", "
+            << m_fps << " кадров/с)\n";
+        return true;
+    }
+
+    void Project::Describe() const
+    {
+        std::cout << "  [Project] " << m_name << " " << m_width << "x" << m_height << ", " << m_fps << " кадров/с, "
+            << m_durationSec << " с, изображений: " << m_images.size() << "\n";
+
+        for (const Image& image : m_images)
+        {
+            image.Describe();
+        }
+    }
+
+}
