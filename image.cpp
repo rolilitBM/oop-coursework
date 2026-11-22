@@ -4,29 +4,33 @@
 
 namespace motion
 {
-
     Image::Image()
     {
-        std::cout << "  [Image] ñîçäàíî ïî óìîë÷àíèþ: " << m_name << "\n";
+        std::cout << "  [Image] ÑÐ¾Ð·Ð´Ð°Ð½Ð¾ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ: " << m_name << "\n";
     }
 
-    Image::Image(std::string_view name, SourceFile* source, double x, double y)
+    Image::Image(std::string_view name, const std::shared_ptr<SourceFile>& source, double x, double y)
         : m_name{ name }
         , m_source{ source }
         , m_x{ x }
         , m_y{ y }
     {
-        std::cout << "  [Image] ñîçäàíî: " << m_name << "\n";
+        std::cout << "  [Image] ÑÐ¾Ð·Ð´Ð°Ð½Ð¾: " << m_name << "\n";
     }
 
     Image::~Image()
     {
-        std::cout << "  [Image] ÓÍÈ×ÒÎÆÅÍÎ: " << m_name << "\n";
+        std::cout << "  [Image] Ð£ÐÐ˜Ð§Ð¢ÐžÐ–Ð•ÐÐž: " << m_name << "\n";
     }
 
     bool Image::IsReady() const
     {
-        return m_source != nullptr && m_source->IsAvailable();
+        if (const std::shared_ptr<SourceFile> source = m_source.lock())
+        {
+            return source->IsAvailable();
+        }
+
+        return false;
     }
 
     void Image::MoveBy(double dx, double dy)
@@ -39,8 +43,8 @@ namespace motion
     {
         if (opacity < MIN_OPACITY || opacity > MAX_OPACITY)
         {
-            std::cout << "  [Image] ÎØÈÁÊÀ: ïðîçðà÷íîñòü " << opacity << " âíå äèàïàçîíà 0..100, îòêëîíåíî (" << m_name
-                << ")\n";
+            std::cout << "  [Image] ÐžÐ¨Ð˜Ð‘ÐšÐ: Ð¿Ñ€Ð¾Ð·Ñ€Ð°Ñ‡Ð½Ð¾ÑÑ‚ÑŒ " << opacity << " Ð²Ð½Ðµ Ð´Ð¸Ð°Ð¿Ð°Ð·Ð¾Ð½Ð° 0..100, Ð¾Ñ‚ÐºÐ»Ð¾Ð½ÐµÐ½Ð¾ (" << m_name
+                      << ")\n";
             return false;
         }
 
@@ -56,8 +60,15 @@ namespace motion
 
     void Image::Describe() const
     {
-        std::cout << "  [Image] " << m_name << ": x=" << m_x << " y=" << m_y << " ïðîçðà÷íîñòü=" << m_opacity
-            << "% èñòî÷íèê=" << (m_source != nullptr ? m_source->GetPath() : "<íåò>") << "\n";
+        std::cout << "  [Image] " << m_name << ": x=" << m_x << " y=" << m_y << " Ð¿Ñ€Ð¾Ð·Ñ€Ð°Ñ‡Ð½Ð¾ÑÑ‚ÑŒ=" << m_opacity
+                  << "% Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº=";
+        if (const std::shared_ptr<SourceFile> source = m_source.lock())
+        {
+            std::cout << source->GetPath() << "\n";
+        }
+        else
+        {
+            std::cout << "<ÑƒÐ´Ð°Ð»Ñ‘Ð½ Ð¸Ð»Ð¸ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½>\n";
+        }
     }
-
 }

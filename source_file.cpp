@@ -4,39 +4,42 @@
 
 namespace motion
 {
-	SourceFile::SourceFile()
-	{
-		std::cout << "  [SourceFile] ñîçäàí ïî óìîë÷àíèþ: " << m_path << "\n";
-	} 
+    SourceFile::SourceFile()
+    {
+        std::cout << "  [SourceFile] ÑÐ¾Ð·Ð´Ð°Ð½ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ: " << m_path << "\n";
+    }
 
-	SourceFile::SourceFile(std::string_view path, bool available)
-		: m_path{ path }
-		, m_available{ available }
-	{
-		std::cout << "  [SourceFile] ñîçäàíî: " << m_path << "\n";
-	}
+    SourceFile::SourceFile(std::string_view path, bool available)
+        : m_path{ path }
+        , m_available{ available }
+    {
+        std::cout << "  [SourceFile] ÑÐ¾Ð·Ð´Ð°Ð½Ð¾: " << m_path << "\n";
+    }
 
-	SourceFile::~SourceFile()
-	{
-		std::cout << "  [SourceFile] óíè÷òîæåíî: " << m_path << "\n";
-	}
+    SourceFile::~SourceFile()
+    {
+        std::cout << "  [SourceFile] ÑƒÐ½Ð¸Ñ‡Ñ‚Ð¾Ð¶ÐµÐ½Ð¾: " << m_path << "\n";
+    }
 
-	void SourceFile::MarkMissing()
-	{
-		m_available = false;
-		std::cout << "  [SourceFile] ñåé÷àñ íåäîñòóïíî: " << m_path << "\n";
-	}
+    void SourceFile::UpdatePath(std::string_view newPath)
+    {
+        m_path = newPath;
+    }
 
-	void SourceFile::Restore()
-	{
-		m_available = true;
-		std::cout << "  [SourceFile] ôàéë âîññòàíîâëåí: " << m_path << "\n";
-	}
+    void SourceFile::MarkMissing()
+    {
+        m_available = false;
+        std::cout << "  [SourceFile] ÑÐµÐ¹Ñ‡Ð°Ñ Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ð¾: " << m_path << "\n";
+    }
 
-	void SourceFile::Describe() const
-	{
-		std::cout << "  [SourceFile] " << m_path << (m_available ? " (äîñòóïåí)" : " (ÎÒÑÓÒÑÒÂÓÅÒ)") << "\n";
-	}
+    void SourceFile::Restore()
+    {
+        m_available = true;
+        std::cout << "  [SourceFile] Ñ„Ð°Ð¹Ð» Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½: " << m_path << "\n";
+    }
 
+    void SourceFile::Describe() const
+    {
+        std::cout << "  [SourceFile] " << m_path << (m_available ? " (Ð´Ð¾ÑÑ‚ÑƒÐ¿ÐµÐ½)" : " (ÐžÐ¢Ð¡Ð£Ð¢Ð¡Ð¢Ð’Ð£Ð•Ð¢)") << "\n";
+    }
 }
-

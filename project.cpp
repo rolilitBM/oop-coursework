@@ -13,61 +13,61 @@ namespace motion
     {
         if (m_width <= 0 || m_height <= 0 || m_fps <= 0 || m_durationSec <= 0)
         {
-            std::cout << "  [Project] ÎØÈÁÊÀ: íåäîïóñòèìûå ïàðàìåòðû, èñïîëüçóþòñÿ çíà÷åíèÿ ïî óìîë÷àíèþ\n";
+            std::cout << "  [Project] ÐžÐ¨Ð˜Ð‘ÐšÐ: Ð½ÐµÐ´Ð¾Ð¿ÑƒÑÑ‚Ð¸Ð¼Ñ‹Ðµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹, Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÑŽÑ‚ÑÑ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ\n";
             m_width = DEFAULT_WIDTH;
             m_height = DEFAULT_HEIGHT;
             m_fps = DEFAULT_FPS;
             m_durationSec = DEFAULT_DURATION;
         }
 
-        std::cout << "  [Project] ñîçäàíî: " << m_name << "\n";
+        std::cout << "  [Project] ÑÐ¾Ð·Ð´Ð°Ð½Ð¾: " << m_name << "\n";
     }
 
     Project::~Project()
     {
-        std::cout << "  [Project] ÓÍÈ×ÒÎÆÅÍÎ: " << m_name << "\n";
+        std::cout << "  [Project] Ð£ÐÐ˜Ð§Ð¢ÐžÐ–Ð•ÐÐž: " << m_name << "\n";
     }
 
-    Image* Project::FindImage(std::string_view name)
+    int Project::FindImage(std::string_view name) const
     {
-        for (Image& image : m_images)
+        for (size_t i = 0; i < m_images.size(); ++i)
         {
-            if (image.GetName() == name)
+            if (m_images[i].GetName() == name)
             {
-                return &image;
+                return static_cast<int>(i);
             }
         }
-        return nullptr;
+        return -1;
     }
 
-    void Project::AddImage(std::string_view name, SourceFile* source, double x, double y)
+    void Project::AddImage(std::string_view name, const std::shared_ptr<SourceFile>& source, double x, double y)
     {
         m_images.emplace_back(name, source, x, y);
     }
 
     bool Project::MoveImage(std::string_view name, double dx, double dy)
     {
-        Image* image = FindImage(name);
-        if (image == nullptr)
+        const int index = FindImage(name);
+        if (index < 0)
         {
-            std::cout << "  [Project] èçîáðàæåíèå íå íàéäåíî: " << name << "\n";
+            std::cout << "  [Project] Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾: " << name << "\n";
             return false;
         }
 
-        image->MoveBy(dx, dy);
+        m_images[index].MoveBy(dx, dy);
         return true;
     }
 
     bool Project::SetImageOpacity(std::string_view name, double opacity)
     {
-        Image* image = FindImage(name);
-        if (image == nullptr)
+        const int index = FindImage(name);
+        if (index < 0)
         {
-            std::cout << "  [Project] èçîáðàæåíèå íå íàéäåíî: " << name << "\n";
+            std::cout << "  [Project] Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾: " << name << "\n";
             return false;
         }
 
-        return image->SetOpacity(opacity);
+        return m_images[index].SetOpacity(opacity);
     }
 
     bool Project::Export() const
@@ -76,26 +76,25 @@ namespace motion
         {
             if (!image.IsReady())
             {
-                std::cout << "  [Project] ÝÊÑÏÎÐÒ ÎÒÊËÎÍÅÍ: èñõîäíûé ôàéë èçîáðàæåíèÿ '" << image.GetName()
-                    << "' íåäîñòóïåí\n";
+                std::cout << "  [Project] Ð­ÐšÐ¡ÐŸÐžÐ Ð¢ ÐžÐ¢ÐšÐ›ÐžÐÐ•Ð: Ð¸ÑÑ…Ð¾Ð´Ð½Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ '" << image.GetName()
+                          << "' Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿ÐµÐ½\n";
                 return false;
             }
         }
 
-        std::cout << "  [Project] ýêñïîðòèðîâàíî êàäðîâ: " << GetFrameCount() << " (" << m_width << "x" << m_height << ", "
-            << m_fps << " êàäðîâ/ñ)\n";
+        std::cout << "  [Project] ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¾ ÐºÐ°Ð´Ñ€Ð¾Ð²: " << GetFrameCount() << " (" << m_width << "x" << m_height
+                  << ", " << m_fps << " ÐºÐ°Ð´Ñ€Ð¾Ð²/Ñ)\n";
         return true;
     }
 
     void Project::Describe() const
     {
-        std::cout << "  [Project] " << m_name << " " << m_width << "x" << m_height << ", " << m_fps << " êàäðîâ/ñ, "
-            << m_durationSec << " ñ, èçîáðàæåíèé: " << m_images.size() << "\n";
+        std::cout << "  [Project] " << m_name << " " << m_width << "x" << m_height << ", " << m_fps << " ÐºÐ°Ð´Ñ€Ð¾Ð²/Ñ, "
+                  << m_durationSec << " Ñ, Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ð¹: " << m_images.size() << "\n";
 
         for (const Image& image : m_images)
         {
             image.Describe();
         }
     }
-
 }
